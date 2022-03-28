@@ -13,7 +13,7 @@ from configparser import ConfigParser
 config_object = ConfigParser()
 config_object.read("config-sample.ini")
 
-directory_name = "./83_failed_jobs/"
+output_data = config_object["OUTPUT"]
 
 def jenkins_connection():
     userinfo = config_object["USERINFO"]
@@ -45,12 +45,12 @@ def get_build_script(server, rhel83_failed_jobs_list):
     # job_build_script dictionary contains job_name as key & value as script
     job_build_script = {}
     # creating  directory 
-    if not os.path.exists(directory_name):
-        os.mkdir(directory_name)
-        print("Directory '%s' created."%(directory_name))
+    if not os.path.exists(output_data["RHEL83_OUTPUT_DIR_NAME"]):
+        os.mkdir(output_data["RHEL83_OUTPUT_DIR_NAME"])
+        print("Directory '%s' created."%(output_data["RHEL83_OUTPUT_DIR_NAME"]))
         print()
     else:
-        print("Directory '%s' already exists."%(directory_name))
+        print("Directory '%s' already exists."%(output_data["RHEL83_OUTPUT_DIR_NAME"]))
         print()
     for job in rhel83_failed_jobs_list:
         job_name = job['name']
@@ -68,9 +68,9 @@ def get_build_script(server, rhel83_failed_jobs_list):
 # Below function stores jobs build script in directory & zip the directory
 def store_data(server, job_build_script):
     for job in job_build_script:
-        with open(os.path.join(directory_name, job + '.sh'), 'w') as file_name:
+        with open(os.path.join(output_data["RHEL83_OUTPUT_DIR_NAME"], job + '.sh'), 'w') as file_name:
             file_name.write(job_build_script[job])
-    shutil.make_archive(directory_name, 'zip', directory_name)
+    shutil.make_archive(output_data["RHEL83_OUTPUT_DIR_NAME"], 'zip', output_data["RHEL83_OUTPUT_DIR_NAME"])
     return "Complete"
 
 # Below function generates csv report with its build status 
@@ -83,7 +83,7 @@ def generate_report(server):
         job_status = job['color']
         if job_status == "red":
             job_status_dict[job_name] = job_status
-    with open('mycsvfile.csv', 'w') as f:
+    with open(output_data["RHEL83_CSV_FILE_NAME"], 'w') as f:
         w = csv.writer(f)
         w.writerow(["Job name", "Job status", "Owner", "New Status", "Comments"])
         w.writerows(job_status_dict.items())
