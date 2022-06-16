@@ -9,7 +9,6 @@ import shutil
 from bs4 import BeautifulSoup
 from configparser import ConfigParser
 
-
 config_object = ConfigParser()
 config_object.read("config-sample.ini")
 
@@ -20,17 +19,13 @@ def jenkins_connection():
     server = jenkins.Jenkins(userinfo["HOSTNAME"], userinfo["USERNAME"], userinfo["PASSWORD"])
     user = server.get_whoami()
     version = server.get_version()
-    print()
-    print("Hello you have connected to jenkins. You are using Jenkins version '%s'" % (version))
     return server
 
 def get_xml(server):
     #server = jenkins_connection()
     jobs = server.get_jobs()
-    #print("jobs >>>> ", jobs)
     print("total jobs >>> ", len(jobs))
     my_job = server.get_job_config('zlib_RHEL_8.5')
-    #print("my_job >>>>>>>>>> ", my_job)
     if not os.path.exists(output_data["JENKINS_XML_DATA"]):
         os.mkdir(output_data["JENKINS_XML_DATA"])
         print("Directory '%s' created."%(output_data["JENKINS_XML_DATA"]))
